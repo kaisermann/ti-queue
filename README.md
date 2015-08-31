@@ -18,13 +18,13 @@ tiq.loop();
 tiq.pause();
 
 // Sets the whole queue through an array of [delay, function]
-tiq.setQueue();
+tiq.setQueue([[delay,function],[delay,function],...]);
 
 // Method executed before the queue itself
-tiq.before();
+tiq.before(function);
 
 // Method executed after the queue ends
-tiq.after();
+tiq.after(function);
 
 // Executed at the end of a loop iteration
 tiq.iteration(function(iterationCount));
