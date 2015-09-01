@@ -8,14 +8,8 @@ var tiq = new Tiq();
 // Adds a method to the queue with the specified delay
 tiq.add(delay, function);
 
-// Starts the queue
-tiq.start();
-
-// Start the queue and loop it
-tiq.loop();
-
-// Stops the queue
-tiq.pause();
+// Add 'numberOfRepetitions' entries of 'function' to the queue
+tiq.repeat(delay, function(methodExecutionIndex), numberOfRepetitions);
 
 // Sets the whole queue through an array of [delay, function]
 tiq.setQueue([[delay,function],[delay,function],...]);
@@ -30,12 +24,22 @@ tiq.after(function);
 tiq.iteration(function(numberOfIterations));
 
 // Executed after each queue item has been processed
-tiq.each(function(itemIndex, numberOfQueueItensProcessed));
+tiq.each(function(itemIndex, numberOfQueueItensProcessed, methodExecutionIndex));
+
+// Starts the queue
+tiq.start();
+
+// Stops the queue
+tiq.stop();
+
+// Start the queue and loop it
+// numberOfLoops is optional. If not set, loops indefinitely.
+tiq.loop(numberOfLoops);
 ```` 
 
-#### Methods can be chained together
+#### Methods can be chained
 ```` 
-new Tiq().add(...,...).add(...,...).add(...,...).before(...).after(...).start();
+new Tiq().add(...,...).before(...).after(...).repeat(...,...,...).start();
 ```` 
 
 
@@ -52,28 +56,39 @@ new Tiq()
 {
 	console.log("Queue index: " + i + " - Queue Execution Counter: " + counter);
 })
-.before(function() { console.log("Print 0"); })
+.before(function() { console.log("Print Before"); })
 .after(function()
 { 
-	new Tiq()
+	console.log("Print After");
+	new Tiq()	
 	.setQueue([
-		[100, function() { console.log("Loop 1"); }],
-		[100, function() { console.log("Loop 2"); }],
-		[100, function() { console.log("Loop 3"); }],
+		[100, loopHelper],
+		[100, loopHelper],
+		[100, loopHelper]
 		])
-	.before(function(){console.log("Starting loop");})
-	.after(function(){console.log("There's no after while looping (this will never be executed).");})
+	.before(function() { console.log("Starting loop"); })
 	.iteration(function (count) // The iteration number is passed as a parameter
 	{ 
 		console.log("End of one loop iteration " + count);
-		if(count==5)
-			this.stop();
 	})
-	.each(function(i, counter)
+	.each(function(i, counter, methodExecutionIndex)
 	{
-		console.log("Loop Queue index: " + i + " - Loop Queue Execution Counter: " + counter);
+		console.log("Loop Queue index: " + i + " - Loop Queue Execution Counter: " + counter + " - " + methodExecutionIndex);
 	})
-	.loop();
+	.after(function() 
+	{
+		console.log("Ok, loop ended.");
+		new Tiq()
+		.repeat(100, sequenceHelper, 15)
+		.add(1000, function(index){ console.log("Lets end this."); })
+		.repeat(200, function(index) { console.log("Ending"+Array(index+2).join(".")); }, 15)
+		.after(function(){ console.log("Ok, done."); })
+		.start();
+	})
+	.loop(5);
 })
 .start();
+
+function loopHelper(methodExecutionIndex) { console.log("*Show element " + methodExecutionIndex + "*"); }
+function sequenceHelper(methodExecutionIndex) { console.log("*Transform element " + methodExecutionIndex + "*");}
 ````
