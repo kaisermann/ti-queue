@@ -1,6 +1,6 @@
 {
   "name": "Tiq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Timed Invocation Queue",
   "main": "dist/tiq.js",
   "repository": {
