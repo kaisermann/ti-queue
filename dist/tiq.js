@@ -1,5 +1,5 @@
 /*
- * Tiq - Timed Invocation Queue JS v1.1.0
+ * Tiq - Timed Invocation Queue JS v1.1.1
  * https://github.com/chriskaisermann/tiq
  * by Christian Kaisermann
  */
