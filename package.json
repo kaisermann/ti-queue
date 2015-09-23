@@ -5,7 +5,7 @@
   "main": "dist/tiq.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chriskaisermann/tiq.git"
+    "url": "https://github.com/kaisermann/tiq.git"
   },
   "keywords": [
     "chain",
@@ -15,7 +15,7 @@
   "author": "Christian Kaisermann",
   "license": "",
   "bugs": {
-    "url": "https://github.com/chriskaisermann/tiq/issues"
+    "url": "https://github.com/kaisermann/tiq/issues"
   },
   "dependencies": {},
   "devDependencies": {

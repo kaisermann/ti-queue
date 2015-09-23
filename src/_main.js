@@ -1,6 +1,6 @@
 /*
  * Tiq - Timed Invocation Queue JS v1.1.2
- * https://github.com/chriskaisermann/tiq
+ * https://github.com/kaisermann/tiq
  * by Christian Kaisermann
  */
  (function (root, factory) 
