@@ -31,7 +31,7 @@
  		return this;
  	};
 
- 	Tiq.prototype.start = function()
+ 	Tiq.prototype.run = function()
  	{
  		var _self = this, _invocationCounter = 0, _loopCounter = 0, _sameMethodCounter = 0;
  		var _lastCallback;
@@ -84,10 +84,10 @@
  	};
  	Tiq.prototype.before = function(callback) { this.beforeCallback = callback; return this; };
  	Tiq.prototype.after = function(callback) { this.afterCallback = callback; return this; };
- 	Tiq.prototype.loop = function(nLoops) { nLoops = nLoops || -1; this.shouldLoop = nLoops; return this.start(); };
+ 	Tiq.prototype.loop = function(nLoops) { nLoops = nLoops || -1; this.shouldLoop = nLoops; return this; };
  	Tiq.prototype.setQueue = function(queue)  { this.queue = queue; return this; };
  	Tiq.prototype.stop = function() { this.shouldPlay = false; this.shouldLoop = 0; clearTimeout(this.timer); return this; };
- 	Tiq.prototype.iteration = function(callback) { this.loopCallback = callback; return this; };
+ 	Tiq.prototype.eachLoop = function(callback) { this.loopCallback = callback; return this; };
  	Tiq.prototype.each = function(callback) { this.eachCallback = callback; return this; };
  	Tiq.prototype.repeat = function(delay, callback, repetitions) { return this.add(delay, callback, repetitions); };
 

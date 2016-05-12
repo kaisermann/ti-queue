@@ -15,8 +15,8 @@ new Tiq()
         [100, loopHelper],
         [100, loopHelper]
         ])
-    .before(function() { console.log("Starting loop"); })
-    .iteration(function (count) // The iteration number is passed as a parameter
+    .before(function() { console.log("Starting loop\n"); })
+    .eachLoop(function (count) // The loop iteration number is passed as a parameter
     { 
         console.log("End of one loop iteration " + count);
     })
@@ -26,17 +26,18 @@ new Tiq()
     })
     .after(function() 
     {
-        console.log("Ok, loop ended.");
+        console.log("\nOk, loop ended.\n");
         new Tiq()
         .repeat(100, sequenceHelper, 15)
-        .add(1000, function(index){ console.log("Lets end this."); })
+        .add(1000, function(index){ console.log("\nLets end this.\n"); })
         .repeat(200, function(index) { console.log("Ending"+Array(index+2).join(".")); }, 15)
-        .after(function(){ console.log("Ok, done."); })
-        .start();
+        .after(function(){ console.log("\nOk, done."); })
+        .run();
     })
-    .loop(5);
+    .loop(5)
+    .run();
 })
-.start();
+.run();
 
 function loopHelper(methodExecutionIndex) { console.log("*Show element " + methodExecutionIndex + "*"); }
 function sequenceHelper(methodExecutionIndex) { console.log("*Transform element " + methodExecutionIndex + "*");}
