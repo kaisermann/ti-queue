@@ -1,95 +1,131 @@
-/*
- * Tiq - Timed Invocation Queue JS v1.1.2
- * https://github.com/kaisermann/tiq
- * by Christian Kaisermann
- */
- (function (root, factory) 
- {
- 	if (typeof define === "function" && define.amd)
- 		define([], factory);
- 	else if (typeof exports === "object")
- 		module.exports = factory();
- 	else
- 		root.Tiq = factory();
- }(this, function (undefined) 
- {
- 	'use strict';
- 	function Tiq() { this.queue = []; this.current = -1; this.shouldLoop = 0; this.shouldPlay = false; }
+(function (global) {
 
- 	Tiq.prototype.add = function(delay, callback, repetitions)
- 	{
- 		repetitions = repetitions || 1;
- 		if(!callback || typeof callback !== "function")
- 		{
- 			console.error("Tiq: Invalid callback;");
- 			return this;
- 		}
+  const isFunction = fn => (fn && typeof fn === 'function');
+  // 'this' will be binded to a Tiq object.
+  const addCallback = function (key, callback) {
 
- 		for(var i = 0; i < repetitions; i++)
- 			this.queue.push([delay,callback]);
+    if (!isFunction(callback)) {
+      throw ('Tiq: Invalid callback');
+    }
 
- 		return this;
- 	};
+    this[key] = callback;
+    return this;
+  };
 
- 	Tiq.prototype.run = function()
- 	{
- 		var _self = this, _invocationCounter = 0, _loopCounter = 0, _sameMethodCounter = 0;
- 		var _lastCallback;
+  class Tiq {
+    constructor(queue) {
+      this.queue = queue || [];
+      this.current = -1;
+      this.numberOfLoops = 1; // 1 loop = default execution
+      this.shouldPlay = false;
+    }
 
- 		_self.shouldPlay = true;
+    add(delay, callback, repetitions) {
+      repetitions = repetitions || 1;
+      if (!isFunction(callback)) {
+        throw ('Tiq: Invalid callback');
+      }
 
- 		if(!!_self.beforeCallback)
- 			_self.beforeCallback.call(_self);
+      for (let i = 0; i < repetitions; i++) {
+        this.queue.push([delay, callback]);
+      }
 
- 		if(!_self.queue.length)
- 			return this;
+      return this;
+    }
 
- 		_self.timer = setTimeout(function timerHelper()
- 		{
- 			if(!_self.shouldPlay)
- 				return _self.stop();
+    run() {
+      const _self = this;
+      let _totalExecutions = 0,
+        _loopCounter = 0,
+        _sameMethodCounter = 0,
+        _lastCallback;
 
- 			var itemCallback = _self.queue[++_self.current][1];
+      this.shouldPlay = true;
 
- 			if(_lastCallback === itemCallback)
- 				_sameMethodCounter++;
- 			else
- 				_sameMethodCounter = 0;
+      if (this.beforeCallback) {
+        this.beforeCallback.call(this);
+      }
 
- 			if(!!itemCallback)
- 				itemCallback.call(_self, _sameMethodCounter);
+      if (!this.queue.length) {
+        throw ('Tiq: Empty queue');
+      }
 
- 			if((++_invocationCounter) && !!_self.eachCallback)
- 				_self.eachCallback.call(_self, _self.current, _invocationCounter, _sameMethodCounter);
+      this.timer = setTimeout(function timerHelper() {
 
- 			if(_self.current+1==_self.queue.length)
- 			{
- 				if(!_self.shouldLoop || (_loopCounter++)-_self.shouldLoop===0)
- 				{
- 					if(!!_self.afterCallback) 
- 						_self.afterCallback.call(_self);
- 					return _self.stop();
- 				}
- 				
- 				if(!!_self.loopCallback)
- 					_self.loopCallback.call(_self, _loopCounter);
+        if (!_self.shouldPlay) {
+          return _self.stop();
+        }
 
- 				_self.current = -1;
- 			}
- 			_lastCallback = itemCallback;
- 			_self.timer = setTimeout(timerHelper, _self.queue[_self.current+1][0]);
+        const itemCallback = _self.queue[++_self.current][1];
 
- 		}, _self.queue[0][0]);
- 		return this;
- 	};
- 	Tiq.prototype.before = function(callback) { this.beforeCallback = callback; return this; };
- 	Tiq.prototype.after = function(callback) { this.afterCallback = callback; return this; };
- 	Tiq.prototype.loop = function(nLoops) { nLoops = nLoops || -1; this.shouldLoop = nLoops; return this; };
- 	Tiq.prototype.setQueue = function(queue)  { this.queue = queue; return this; };
- 	Tiq.prototype.stop = function() { this.shouldPlay = false; this.shouldLoop = 0; clearTimeout(this.timer); return this; };
- 	Tiq.prototype.eachLoop = function(callback) { this.loopCallback = callback; return this; };
- 	Tiq.prototype.each = function(callback) { this.eachCallback = callback; return this; };
- 	Tiq.prototype.repeat = function(delay, callback, repetitions) { return this.add(delay, callback, repetitions); };
+        if (_lastCallback === itemCallback) {
+          _sameMethodCounter++;
+        } else {
+          _sameMethodCounter = 0;
+        }
 
- 	return Tiq;
- }));
+        if (itemCallback) {
+          itemCallback.call(_self, _self.current, _sameMethodCounter, _totalExecutions);
+        }
+
+        if (_self.eachCallback) {
+          _self.eachCallback.call(_self, _self.current, _sameMethodCounter, _totalExecutions);
+        }
+
+        _totalExecutions++;
+
+        if (_self.current + 1 === _self.queue.length) {
+
+          if (_self.numberOfLoops !== 1 && _self.eachLoopCallback) {
+            _self.eachLoopCallback.call(_self, _loopCounter);
+          }
+
+          if (++_loopCounter === _self.numberOfLoops) {
+            if (_self.afterCallback) {
+              _self.afterCallback.call(_self, _totalExecutions, _loopCounter);
+            }
+            return _self.stop();
+          }
+
+          _lastCallback = null;
+          _self.current = -1;
+        } else {
+          _lastCallback = itemCallback;
+        }
+        _self.timer = setTimeout(timerHelper, _self.queue[_self.current + 1][0]);
+
+      }, _self.queue[0][0]);
+      return this;
+    }
+
+    loop(nLoops) {
+      this.numberOfLoops = nLoops || -1;
+      return this;
+    }
+
+    stop() {
+      this.shouldPlay = false;
+      this.numberOfLoops = 0;
+      clearTimeout(this.timer);
+      return this;
+    }
+
+    repeat(delay, callback, repetitions) {
+      return this.add(delay, callback, repetitions);
+    }
+
+  }
+
+  // Creates the methods to add a callback to a specific 'event'
+  ['eachLoop', 'each', 'before', 'after'].forEach(methodName => {
+    Tiq.prototype[methodName] = function (callback) {
+      return addCallback.call(this, `${methodName}Callback`, callback);
+    };
+  });
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Tiq;
+  } else {
+    window.Tiq = Tiq;
+  }
+})();

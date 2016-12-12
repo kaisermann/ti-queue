@@ -1,90 +1,110 @@
 # Tiq - Timed Invocation Queue
 
 ## Methods
-```` 
-// Creates a new tiq
-var tiq = new Tiq();
+```js
+// Creates a new empty tiq
+const tiq = new Tiq();
 
+// Creates a new tiq with a specified queue
+const tiq = new Tiq([[delay,function],[delay,function],...]);
+```
+
+```js
 // Adds a method to the queue with the specified delay
-tiq.add(delay, function);
+tiq.add(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
+```
 
+```js
 // Add 'numberOfRepetitions' entries of 'function' to the queue
-tiq.repeat(delay, function(methodExecutionIndex), numberOfRepetitions);
+// The callback receives the same parameters as the .add() method
+tiq.repeat(delay, function, numberOfRepetitions);
+```
 
-// Sets the whole queue through an array of [delay, function]
-tiq.setQueue([[delay,function],[delay,function],...]);
-
+```js
 // Method executed before the queue itself
 tiq.before(function);
+```
 
+```js
 // Method executed after the queue ends
-tiq.after(function);
-// Executed after each queue item has been processed
-tiq.each(function(itemIndex, numberOfQueueItensProcessed, methodExecutionIndex));
+tiq.after(function(invocationCounter, loopCounter));
+```
 
+```js
+// Executed after each queue item has been processed
+tiq.each(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
+```
+
+```js
 // Set the number of loops
 // numberOfLoops is optional. If not set, loops indefinitely.
+// Default: 1 (no looping)
 tiq.loop(numberOfLoops);
+```
 
+```js
 // Executed at the end of each loop iteration
 tiq.eachLoop(function(numberOfIterations));
+```
 
+```js
 // Runs the queue
 tiq.run();
+```
 
+```js
 // Stops the queue
 tiq.stop();
-```` 
+```
 
 #### Methods can be chained
-```` 
+````
 new Tiq().add(...,...).before(...).after(...).repeat(...,...,...).run();
-```` 
-
+````
 
 ## Example
-```` 
-var Tiq = require("./dist/tiq.js");
+```js
+const Tiq = require('./dist/tiq.js');
+const noop = () => 0;
 
 new Tiq()
-.add(500, function(){ console.log("Print 1"); })
-.add(500, function(){ console.log("Print 2"); })
-.add(500, function(){ console.log("Print 3"); })
-.add(200, function(){ console.log("Print 4"); })
-.before(function() { console.log("Print Before"); })
-.after(function()
-{ 
-    console.log("Print After");
-    new Tiq()   
-    .setQueue([
-        [100, loopHelper],
-        [100, loopHelper],
-        [100, loopHelper]
-        ])
-    .before(function() { console.log("Starting loop\n"); })
-    .eachLoop(function (count) // The loop iteration number is passed as a parameter
-    { 
-        console.log("End of one loop iteration " + count);
-    })
-    .each(function(i, counter, methodExecutionIndex)
-    {
-        console.log("Loop Queue index: " + i + " - Loop Queue Execution Counter: " + counter + " - " + methodExecutionIndex);
-    })
-    .after(function() 
-    {
-        console.log("\nOk, loop ended.\n");
+  .add(500, () => console.log('Print 1'))
+  .add(500, () => console.log('Print 2'))
+  .add(500, () => console.log('Print 3'))
+  .add(200, () => console.log('Print 4'))
+  .before(() => console.log('Print Before'))
+  .after((totalExecutions, loopIndex) => {
+    console.log(`Print After ${totalExecutions} executions.`);
+    new Tiq([
+        [1000, noop],
+        [300, noop],
+        [300, noop]
+      ])
+      .before(() => console.log('Starting loop\n'))
+      // The loop iteration index is passed as a parameter
+      .eachLoop((count) => console.log(`End of one loop iteration ${count}\n`))
+      .each((currentQueueIndex, methodExecutionIndex, totalExecutions) =>
+        console.log(`Current loop Queue index: ${currentQueueIndex}
+Current loop method execution Counter: ${methodExecutionIndex}
+Total executions: ${totalExecutions}
+`)
+      )
+      .loop(3)
+      .after((totalExecutions, loopIndex) => {
+        console.log(`\nOk, ended looping ${loopIndex} times with a total of ${totalExecutions} method executions.\n`);
         new Tiq()
-        .repeat(100, sequenceHelper, 15)
-        .add(1000, function(index){ console.log("\nLets end this.\n"); })
-        .repeat(200, function(index) { console.log("Ending"+Array(index+2).join(".")); }, 15)
-        .after(function(){ console.log("\nOk, done."); })
-        .run();
-    })
-    .loop(5)
-    .run();
-})
-.run();
+          .add(1000, () => console.log('\nLets end this.\n'))
+          .repeat(100, (currentQueueIndex, sameMethodCounter, totalExecutions) => {
+            console.log(`Ending ${Array(sameMethodCounter + 2).join('.')}`);
+          }, 10)
+          .after(() => console.log('\nOk, done.'))
+          .run();
+      })
+      .run();
+  })
+  .run();
+```
 
-function loopHelper(methodExecutionIndex) { console.log("*Show element " + methodExecutionIndex + "*"); }
-function sequenceHelper(methodExecutionIndex) { console.log("*Transform element " + methodExecutionIndex + "*");}
-````
+## Demo
+
+To see the code above being executed just run `node index.js`.
