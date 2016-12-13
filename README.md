@@ -1,7 +1,11 @@
 # Tiq - Timed Invocation Queue
 
+## Installation
+`bower install ti-queue` or `npm install --save ti-queue` or `yarn add ti-queue`
+
 ## Methods
-```js
+
+```javascript
 // Creates a new empty tiq
 const tiq = new Tiq();
 
@@ -9,61 +13,63 @@ const tiq = new Tiq();
 const tiq = new Tiq([[delay,function],[delay,function],...]);
 ```
 
-```js
-// Adds a method to the queue with the specified delay
+```javascript
+// Adds a method to the queue with the specified delay
 tiq.add(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
 ```
 
-```js
+```javascript
 // Add 'numberOfRepetitions' entries of 'function' to the queue
 // The callback receives the same parameters as the .add() method
-tiq.repeat(delay, function, numberOfRepetitions);
+tiq.repeat(numberOfRepetitions, delay, function);
 ```
 
-```js
+```javascript
 // Method executed before the queue itself
 tiq.before(function);
 ```
 
-```js
+```javascript
 // Method executed after the queue ends
 tiq.after(function(invocationCounter, loopCounter));
 ```
 
-```js
+```javascript
 // Executed after each queue item has been processed
 tiq.each(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
 ```
 
-```js
+```javascript
 // Set the number of loops
 // numberOfLoops is optional. If not set, loops indefinitely.
 // Default: 1 (no looping)
 tiq.loop(numberOfLoops);
 ```
 
-```js
+```javascript
 // Executed at the end of each loop iteration
 tiq.eachLoop(function(numberOfIterations));
 ```
 
-```js
+```javascript
 // Runs the queue
 tiq.run();
 ```
 
-```js
+```javascript
 // Stops the queue
 tiq.stop();
 ```
 
-#### Methods can be chained
-````
+### Methods can be chained
+
+```
 new Tiq().add(...,...).before(...).after(...).repeat(...,...,...).run();
-````
+```
 
 ## Example
-```js
+
+```javascript
 const Tiq = require('./dist/tiq.js');
 const noop = () => 0;
 
@@ -94,9 +100,9 @@ Total executions: ${totalExecutions}
         console.log(`\nOk, ended looping ${loopIndex} times with a total of ${totalExecutions} method executions.\n`);
         new Tiq()
           .add(1000, () => console.log('\nLets end this.\n'))
-          .repeat(100, (currentQueueIndex, sameMethodCounter, totalExecutions) => {
+          .repeat(10, 100, (currentQueueIndex, sameMethodCounter, totalExecutions) => {
             console.log(`Ending ${Array(sameMethodCounter + 2).join('.')}`);
-          }, 10)
+          })
           .after(() => console.log('\nOk, done.'))
           .run();
       })

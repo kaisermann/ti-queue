@@ -110,10 +110,9 @@
       return this;
     }
 
-    repeat(delay, callback, repetitions) {
+    repeat(repetitions, delay, callback) {
       return this.add(delay, callback, repetitions);
     }
-
   }
 
   // Creates the methods to add a callback to a specific 'event'
