@@ -28,9 +28,9 @@ Total executions: ${totalExecutions}
         console.log(`\nOk, ended looping ${loopIndex} times with a total of ${totalExecutions} method executions.\n`);
         new Tiq()
           .add(1000, () => console.log('\nLets end this.\n'))
-          .repeat(100, (currentQueueIndex, sameMethodCounter, totalExecutions) => {
+          .repeat(10, 100, (currentQueueIndex, sameMethodCounter, totalExecutions) => {
             console.log(`Ending ${Array(sameMethodCounter + 2).join('.')}`);
-          }, 10)
+          })
           .after(() => console.log('\nOk, done.'))
           .run();
       })

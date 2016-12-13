@@ -111,7 +111,7 @@
     return this;
   };
 
-  Tiq.prototype.repeat = function repeat (delay, callback, repetitions) {
+  Tiq.prototype.repeat = function repeat (repetitions, delay, callback) {
     return this.add(delay, callback, repetitions);
   };
 

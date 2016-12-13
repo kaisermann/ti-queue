@@ -1,7 +1,7 @@
 {
-  "name": "tiq",
-  "version": "2.0.0",
-  "description": "Timed Invocation Queue",
+  "name": "ti-queue",
+  "version": "2.0.1",
+  "description": "Sync Invocation Queue",
   "main": "dist/tiq.js",
   "repository": {
     "type": "git",
