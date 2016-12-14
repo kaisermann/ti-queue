@@ -50,28 +50,27 @@ const tiq = new Tiq([[delay,function],[delay,function],...]);
 
 ```js
 // Adds a method to the queue with the specified delay
-tiq.add(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
+tiq.add(delay, function(tiqObject));
 ```
 
 ```js
 // Add 'numberOfRepetitions' entries of 'function' to the queue
-// The callback receives the same parameters as the .add() method
-tiq.repeat(numberOfRepetitions, delay, function);
+tiq.repeat(numberOfRepetitions, delay, function(tiqObject));
 ```
 
 ```js
 // Method executed before the queue itself
-tiq.before(function);
+tiq.before(function(tiqObject));
 ```
 
 ```js
 // Method executed after the queue ends
-tiq.after(function(invocationCounter, loopCounter));
+tiq.after(function(tiqObject));
 ```
 
 ```js
 // Executed after each queue item has been processed
-tiq.each(delay, function(currentQueueIndex,sameMethodCounter, totalExecutions));
+tiq.each(delay, function(tiqObject));
 ```
 
 ```js
@@ -83,12 +82,12 @@ tiq.loop(numberOfLoops);
 
 ```js
 // Executed at the beginning of each loop iteration (if number of loops > 1)
-tiq.beforeLoop(function(numberOfIterations));
+tiq.beforeLoop(function(tiqObject));
 ```
 
 ```js
 // Executed at the end of each loop iteration (if number of loops > 1)
-tiq.afterLoop(function(numberOfIterations));
+tiq.afterLoop(function(tiqObject));
 ```
 
 ```js
