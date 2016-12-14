@@ -1,6 +1,7 @@
-(function (global) {
+(function () {
 
-  const isFunction = fn => (fn && typeof fn === 'function');
+  const isFunction = fn => typeof fn === 'function';
+
   // 'this' will be binded to a Tiq object.
   const addCallback = function (key, callback) {
 
@@ -15,18 +16,18 @@
   class Tiq {
     constructor(queue) {
       this.queue = queue || [];
-      this.current = -1;
-      this.numberOfLoops = 1; // 1 loop = default execution
-      this.shouldPlay = false;
+      this.reset();
     }
 
     add(delay, callback, repetitions) {
+
       repetitions = repetitions || 1;
+
       if (!isFunction(callback)) {
         throw ('Tiq: Invalid callback');
       }
 
-      for (let i = 0; i < repetitions; i++) {
+      while (repetitions--) {
         this.queue.push([delay, callback]);
       }
 
@@ -35,66 +36,69 @@
 
     run() {
       const _self = this;
-      let _totalExecutions = 0,
-        _loopCounter = 0,
-        _sameMethodCounter = 0,
-        _lastCallback;
+      this.playing = true;
 
-      this.shouldPlay = true;
-
-      if (this.beforeCallback) {
+      if (this.beforeCallback && !this.hasExecutedBeforeCallback) {
+        this.hasExecutedBeforeCallback = true;
         this.beforeCallback.call(this);
-      }
-
-      if (!this.queue.length) {
-        throw ('Tiq: Empty queue');
       }
 
       this.timer = setTimeout(function timerHelper() {
 
-        if (!_self.shouldPlay) {
+        if (!_self.playing) {
           return _self.stop();
         }
 
-        const itemCallback = _self.queue[++_self.current][1];
-
-        if (_lastCallback === itemCallback) {
-          _sameMethodCounter++;
-        } else {
-          _sameMethodCounter = 0;
+        if (_self.currentIndex === 0 && _self.numberOfLoops !== 1 && _self.beforeLoopCallback) {
+          _self.beforeLoopCallback.call(_self, _self);
         }
 
+        const itemCallback = _self.queue[_self.currentIndex][1];
+
+        if (_self.lastCallback === itemCallback) {
+          _self.sameMethodCounter++;
+        } else {
+          _self.sameMethodCounter = 0;
+        }
+
+        _self.executionCounter++;
+
         if (itemCallback) {
-          itemCallback.call(_self, _self.current, _sameMethodCounter, _totalExecutions);
+          itemCallback.call(_self, _self);
         }
 
         if (_self.eachCallback) {
-          _self.eachCallback.call(_self, _self.current, _sameMethodCounter, _totalExecutions);
+          _self.eachCallback.call(_self, _self);
         }
 
-        _totalExecutions++;
+        if (_self.currentIndex + 1 === _self.queue.length) {
 
-        if (_self.current + 1 === _self.queue.length) {
-
-          if (_self.numberOfLoops !== 1 && _self.eachLoopCallback) {
-            _self.eachLoopCallback.call(_self, _loopCounter);
+          if (_self.numberOfLoops !== 1 && _self.afterLoopCallback) {
+            _self.afterLoopCallback.call(_self, _self);
           }
 
-          if (++_loopCounter === _self.numberOfLoops) {
+          if (++_self.currentLoopIndex >= _self.numberOfLoops) {
             if (_self.afterCallback) {
-              _self.afterCallback.call(_self, _totalExecutions, _loopCounter);
+              _self.afterCallback.call(_self, _self);
             }
             return _self.stop();
           }
 
-          _lastCallback = null;
-          _self.current = -1;
+          _self.lastCallback = null;
+          _self.currentIndex = -1;
         } else {
-          _lastCallback = itemCallback;
+          _self.lastCallback = itemCallback;
         }
-        _self.timer = setTimeout(timerHelper, _self.queue[_self.current + 1][0]);
+        _self.timer = setTimeout(timerHelper, _self.queue[++_self.currentIndex][0]);
 
-      }, _self.queue[0][0]);
+      }, _self.queue[_self.currentIndex][0]);
+      return this;
+    }
+
+    stop() {
+      this.playing = false;
+      clearTimeout(this.timer);
+      this.timer = null;
       return this;
     }
 
@@ -103,26 +107,31 @@
       return this;
     }
 
-    stop() {
-      this.shouldPlay = false;
-      this.numberOfLoops = 0;
-      clearTimeout(this.timer);
-      return this;
-    }
-
     repeat(repetitions, delay, callback) {
       return this.add(delay, callback, repetitions);
+    }
+
+    reset() {
+      this.stop();
+      this.numberOfLoops = 1;
+      this.currentIndex = 0;
+      this.currentLoopIndex = 0;
+      this.sameMethodCounter = 0;
+      this.executionCounter = 0;
+      this.lastCallback = null;
+      this.hasExecutedBeforeCallback = false;
+      return this;
     }
   }
 
   // Creates the methods to add a callback to a specific 'event'
-  ['eachLoop', 'each', 'before', 'after'].forEach(methodName => {
+  ['beforeLoop', 'afterLoop', 'each', 'before', 'after'].forEach(methodName => {
     Tiq.prototype[methodName] = function (callback) {
       return addCallback.call(this, `${methodName}Callback`, callback);
     };
   });
 
-  if (typeof module !== 'undefined' && module.exports) {
+  if (module && module.exports) {
     module.exports = Tiq;
   } else {
     window.Tiq = Tiq;

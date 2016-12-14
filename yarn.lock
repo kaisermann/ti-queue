@@ -209,6 +209,12 @@ decamelize@^1.0.0, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
+decomment@^0.8.6:
+  version "0.8.7"
+  resolved "https://registry.yarnpkg.com/decomment/-/decomment-0.8.7.tgz#248f2116f6ce3a8e8dd1b63e5b35aba5ca054ca5"
+  dependencies:
+    esprima "3.1"
+
 defaults@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/defaults/-/defaults-1.0.3.tgz#c656051e9817d9ff08ed881477f3fe4019f3ef7d"
@@ -286,6 +292,10 @@ error-ex@^1.2.0:
 escape-string-regexp@^1.0.2:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
+
+esprima@3.1:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/esprima/-/esprima-3.1.2.tgz#954b5d19321ca436092fa90f06d6798531fe8184"
 
 exit@0.1.2, exit@0.1.x:
   version "0.1.2"
@@ -571,6 +581,14 @@ gulp-size@^2.0.0:
     stream-counter "^1.0.0"
     through2 "^2.0.0"
 
+gulp-strip-comments@^2.4.3:
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/gulp-strip-comments/-/gulp-strip-comments-2.4.3.tgz#e219b7c7beac1aba6c36e0aff1db7c5ae2c1c1b0"
+  dependencies:
+    decomment "^0.8.6"
+    gulp-util "3.0.7"
+    through2 "^2.0.1"
+
 gulp-uglify@^1.3.0:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/gulp-uglify/-/gulp-uglify-1.5.4.tgz#524788d87666d09f9d0c21fb2177f90039a658c9"
@@ -584,7 +602,7 @@ gulp-uglify@^1.3.0:
     uglify-save-license "^0.4.1"
     vinyl-sourcemaps-apply "^0.2.0"
 
-gulp-util@^3, gulp-util@^3.0.0, gulp-util@^3.0.7:
+gulp-util@3.0.7, gulp-util@^3, gulp-util@^3.0.0, gulp-util@^3.0.7:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.7.tgz#78925c4b8f8b49005ac01a011c557e6218941cbb"
   dependencies:
@@ -1435,7 +1453,7 @@ through2@^0.6.1, through2@~0.6.1:
     readable-stream ">=1.0.33-1 <1.1.0-0"
     xtend ">=4.0.0 <4.1.0-0"
 
-through2@^2, through2@^2.0.0:
+through2@^2, through2@^2.0.0, through2@^2.0.1:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.3.tgz#0004569b37c7c74ba39c43f3ced78d1ad94140be"
   dependencies:
